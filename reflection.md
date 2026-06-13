@@ -1,14 +1,8 @@
 # 💭 Reflection: Game Glitch Investigator
 
-Answer each question in 3 to 5 sentences. Be specific and honest about what actually happened while you worked. This is about your process, not trying to sound perfect.
-
 ## 1. What was broken when you started?
 
-- What did the game look like the first time you ran it?
-- List at least two concrete bugs you noticed at the start  
-  (for example: "the hints were backwards").
-
-When I first ran the game, the interface appeared functional but suffered from severe display lag, particularly with the input field taking a long time to load. I immediately noticed two concrete bugs: the attempts counter started at 5 instead of 6 and failed to decrement properly, and the hint logic was completely broken, telling me to go "higher" even when I guessed the maximum limit of 100. Furthermore, the game allowed out-of-bounds guesses like 120 without throwing any errors or warnings.
+When I initially ran the application, the interface loaded with significant display lag, especially around the user input field. I immediately identified several critical state management bugs, including an attempts counter that started at five instead of six and failed to decrement after a guess. Additionally, the core game engine was structurally flawed: it allowed out-of-bounds guesses like 120 without throwing errors and provided completely backwards hints, such as telling me to go "higher" when I was already at the maximum limit.
 
 **Bug Reproduction Log**
 
@@ -24,30 +18,22 @@ Click New Game  Reset all     No Reset          Localhost reload required
 
 ## 2. How did you use AI as a teammate?
 
-- Which AI tools did you use on this project (Gemini)?
-- Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
-- Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result).
+I used Gemini as a collaborative coding partner to brainstorm solutions, separate my game engine logic, and troubleshoot UI synchronization issues. A correct and highly useful suggestion was to wrap my text input and submit button inside an `st.form`, which perfectly resolved the bug where pressing the "Enter" key failed to register a guess. However, early on I received a misleading suggestion to manage the game state using a standard `while` loop; I quickly verified this was incorrect because it caused the app to freeze, as Streamlit requires a top-down rerun model rather than persistent background loops.
 
 ---
 
 ## 3. Debugging and testing your fixes
 
-- How did you decide whether a bug was really fixed?
-- Describe at least one test you ran (manual or using pytest)  
-  and what it showed you about your code.
-- Did AI help you design or understand any tests? How?
+I decided a bug was genuinely fixed only when I could perform the exact sequence of steps that caused the original failure and observe the expected, correct behavior instead. To validate the engine, I ran a `pytest` suite against the `check_guess` function, which proved my code successfully fixed the "backwards hint" bug by asserting that guesses higher than the secret strictly returned a "LOWER" hint. The AI helped me design these tests by structuring them into a formal `TestGameLogic` class and identifying the specific boundary conditions—like exact matches and out-of-bounds inputs—that needed to be locked down.
 
 ---
 
 ## 4. What did you learn about Streamlit and state?
 
-- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+I would explain Streamlit to a friend as an artist who completely redraws a painting from top to bottom every single time you click a button or interact with the page. Because the script runs from scratch so frequently, it inherently forgets what was on the screen just a second ago. "Session state" acts like a permanent sticky note in the artist's pocket, allowing the application to remember critical details—like the player's running score, history, or remaining attempts—across all of those endless redraws.
 
 ---
 
 ## 5. Looking ahead: your developer habits
 
-- What is one habit or strategy from this project that you want to reuse in future labs or projects?
-  - This could be a testing habit, a prompting strategy, or a way you used Git.
-- What is one thing you would do differently next time you work with AI on a coding task?
-- In one or two sentences, describe how this project changed the way you think about AI generated code.
+In future projects, I plan to consistently reuse the strategy of completely separating my core business logic from the UI code, as it made isolating bugs and writing `pytest` cases significantly easier. Next time I work with an AI assistant, I will provide smaller, targeted snippets of code alongside explicit, multi-step instructions rather than asking it to debug an entire application at once. Ultimately, this project reinforced that AI-generated code serves as an excellent rough draft, but it requires rigorous human review and testing because it frequently hallucinates the nuanced logic required for stateful web applications.
