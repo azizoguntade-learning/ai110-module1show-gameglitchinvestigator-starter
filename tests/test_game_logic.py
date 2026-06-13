@@ -1,6 +1,6 @@
 # test/test_game_logic.py
 import pytest
-from logic_utils import check_guess, parse_guess
+from logic_utils import check_guess, parse_guess, update_score
 
 class TestGameLogic:
     """Test suite for the core game engine functions."""
@@ -38,8 +38,29 @@ class TestGameLogic:
         assert val == 42
         assert err is None
 
-        # Invalid float (Testing the bug we fixed)
+        # Invalid float
         ok, val, err = parse_guess("5.5")
         assert ok is False
         assert val is None
         assert "valid whole number" in err
+
+    def test_update_score_logic(self):
+        """
+        Tests that scoring math correctly rewards wins and penalizes misses.
+        """
+        current = 50
+
+        # Test 1: Win on attempt 0 (Formula: 100 - 10 * 1 = 90 points)
+        new_score = update_score(current_score=current, outcome="Win", attempt_number=0)
+        assert new_score == current + 90
+
+        # Test 2: Win on attempt 15 (Should floor at 10 points, not go negative)
+        floor_score = update_score(current_score=current, outcome="Win", attempt_number=15)
+        assert floor_score == current + 10
+
+        # Test 3: Incorrect guesses strictly deduct 5 points
+        high_score = update_score(current_score=current, outcome="Too High", attempt_number=1)
+        assert high_score == current - 5
+        
+        low_score = update_score(current_score=current, outcome="Too Low", attempt_number=2)
+        assert low_score == current - 5

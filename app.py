@@ -57,24 +57,22 @@ with st.expander("Developer Debug Info"):
     st.write("Difficulty:", difficulty)
     st.write("History:", st.session_state.history)
 
-raw_guess = st.text_input(
-    "Enter your guess:",
-    key=f"guess_input_{difficulty}"
-)
+# 1. Group the input and submit button into a form so "Enter" works
+with st.form(key=f"guess_form_{difficulty}", clear_on_submit=True):
+    raw_guess = st.text_input("Enter your guess:")
+    submit = st.form_submit_button("Submit Guess 🚀")
 
-col1, col2, col3 = st.columns(3)
+# 2. Move the other controls outside the form
+col1, col2 = st.columns(2)
 with col1:
-    submit = st.button("Submit Guess 🚀")
-with col2:
     new_game = st.button("New Game 🔄")
-with col3:
+with col2:
     show_hint = st.checkbox("Show hint", value=True)
 
 if new_game:
     st.session_state.attempts = 0
-    # Use the dynamic variables we defined earlier in the script
-    st.session_state.secret = random.randint(low, high) 
-    st.session_state.status = "playing" # Defuses the infinite game over trap
+    st.session_state.secret = random.randint(low, high)
+    st.session_state.status = "playing"
     st.session_state.score = 0
     st.session_state.history = []
     st.rerun()
@@ -86,15 +84,19 @@ if st.session_state.status != "playing":
         st.error("Game over. Start a new game to try again.")
     st.stop()
 
+# 3. Handle the submission logic
 if submit:
-    st.session_state.attempts += 1
-
     ok, guess_int, err = parse_guess(raw_guess)
 
+    # Validate input first
     if not ok:
-        st.session_state.history.append(raw_guess)
         st.error(err)
+    # Check for duplicate guess
+    elif guess_int in st.session_state.history:
+        st.error(f"You already guessed {guess_int}! Try a different number. (Attempt not counted)")
     else:
+        # Valid, brand-new guess! Now we increment attempts and save to history.
+        st.session_state.attempts += 1
         st.session_state.history.append(guess_int)
 
         # Sabotage trap removed! Passing the integer directly.
