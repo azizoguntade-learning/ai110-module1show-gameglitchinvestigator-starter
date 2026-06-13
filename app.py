@@ -35,10 +35,14 @@ def check_guess(guess, secret):
 
     try:
         if guess > secret:
+            # FIXME: Logic breaks here. If guess is higher, it should say "Go LOWER!"
             return "Too High", "📈 Go HIGHER!"
         else:
+            # FIXME: Logic breaks here. If guess is lower, it should say "Go HIGHER!"
             return "Too Low", "📉 Go LOWER!"
     except TypeError:
+        # FIXME: Logic breaks here. This catches the string conversion from app.py
+        # and forces a lexicographical string comparison instead of mathematical math.
         g = str(guess)
         if g == secret:
             return "Win", "🎉 Correct!"
@@ -156,6 +160,8 @@ if submit:
         st.session_state.history.append(guess_int)
 
         if st.session_state.attempts % 2 == 0:
+            # FIXME: Logic breaks here. Converting the integer secret to a string 
+            # on even attempts triggers a TypeError when comparing greater than/less than.
             secret = str(st.session_state.secret)
         else:
             secret = st.session_state.secret
