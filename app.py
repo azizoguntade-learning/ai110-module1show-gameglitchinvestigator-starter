@@ -95,11 +95,11 @@ if submit:
     elif guess_int in st.session_state.history:
         st.error(f"You already guessed {guess_int}! Try a different number. (Attempt not counted)")
     else:
-        # Valid, brand-new guess! Now we increment attempts and save to history.
+        # Valid, brand-new guess. Now increment attempts and save to history.
         st.session_state.attempts += 1
         st.session_state.history.append(guess_int)
 
-        # Sabotage trap removed! Passing the integer directly.
+        # Sabotage trap removed. Passing the integer directly.
         secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)

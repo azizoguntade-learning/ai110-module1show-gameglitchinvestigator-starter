@@ -17,6 +17,8 @@ def parse_guess(raw: str):
         return False, None, "Enter a guess."
 
     try:
+        # FIX: Collaborated with AI to remove the float() conversion trick, 
+        # forcing strict int() casting to properly reject decimals.
         value = int(raw)
     except ValueError:
         return False, None, "That is not a valid whole number."
@@ -30,6 +32,8 @@ def check_guess(guess, secret):
     if guess == secret:
         return "Win", "🎉 Correct!"
 
+    # FIX: AI helped me realize the try/except TypeError block was hiding a string comparison bug. 
+    # We deleted that block entirely and flipped the logic to fix the backwards hints.
     if guess > secret:
         return "Too High", "📉 Go LOWER!"
     else:
@@ -43,6 +47,8 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
             points = 10
         return current_score + points
 
+    # FIX: AI and I identified and removed an arbitrary rule that added 5 points 
+    # on even-numbered attempts. Now, all incorrect guesses consistently subtract 5 points.
     if outcome in ["Too High", "Too Low"]:
         return current_score - 5
 
