@@ -142,12 +142,8 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        if st.session_state.attempts % 2 == 0:
-            # FIXME: Logic breaks here. Converting the integer secret to a string 
-            # on even attempts triggers a TypeError when comparing greater than/less than.
-            secret = str(st.session_state.secret)
-        else:
-            secret = st.session_state.secret
+        # Just use the integer secret.
+        secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
 
