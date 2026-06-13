@@ -1,59 +1,10 @@
 import random
 import streamlit as st
+from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score
 
-def get_range_for_difficulty(difficulty: str):
-    """Return (low, high) inclusive range for a given difficulty."""
-    if difficulty == "Easy":
-        return 1, 20
-    if difficulty == "Normal":
-        return 1, 100
-    if difficulty == "Hard":
-        return 1, 50
-    return 1, 100
+st.set_page_config(page_title="Glitchy Guesser", page_icon="👾")
 
-def parse_guess(raw: str):
-    """
-    Parse user input into an int guess.
-    Returns: (ok: bool, guess_int: int | None, error_message: str | None)
-    """
-    if not raw:
-        return False, None, "Enter a guess."
-
-    try:
-        value = int(raw)
-    except ValueError:
-        return False, None, "That is not a valid whole number."
-
-    return True, value, None
-
-def check_guess(guess, secret):
-    """
-    Compare guess to secret and return (outcome, message).
-    """
-    if guess == secret:
-        return "Win", "🎉 Correct!"
-
-    if guess > secret:
-        return "Too High", "📉 Go LOWER!"
-    else:
-        return "Too Low", "📈 Go HIGHER!"
-
-def update_score(current_score: int, outcome: str, attempt_number: int):
-    """Update score based on outcome and attempt number."""
-    if outcome == "Win":
-        points = 100 - 10 * (attempt_number + 1)
-        if points < 10:
-            points = 10
-        return current_score + points
-
-    if outcome in ["Too High", "Too Low"]:
-        return current_score - 5
-
-    return current_score
-
-st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
-
-st.title("🎮 Game Glitch Investigator")
+st.title("👾 Game Glitch Investigator")
 st.caption("An AI-generated guessing game. Something is off.")
 
 st.sidebar.header("Settings")
@@ -79,8 +30,9 @@ st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
+# Fix: Start attempts at 0 so the math aligns with the allowed attempts limit
 if "attempts" not in st.session_state:
-    st.session_state.attempts = 1
+    st.session_state.attempts = 0
 
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -94,7 +46,7 @@ if "history" not in st.session_state:
 st.subheader("Make a guess")
 
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -114,7 +66,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     submit = st.button("Submit Guess 🚀")
 with col2:
-    new_game = st.button("New Game 🔁")
+    new_game = st.button("New Game 🔄")
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
@@ -142,7 +94,7 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        # Just use the integer secret.
+        # Sabotage trap removed! Passing the integer directly.
         secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
